@@ -1,0 +1,55 @@
+{
+  "name": "remark-directive-mdx",
+  "version": "0.1.0",
+  "description": "Remark plugin to transform directives to MDX JSX elements",
+  "keywords": [
+    "unified",
+    "remark",
+    "mdx",
+    "markdown",
+    "directive",
+    "plugin",
+    "remark-plugin",
+    "remark-directive"
+  ],
+  "license": "BSD-3-Clause",
+  "author": "daylily <i@dayli.ly> (https://dayli.ly/)",
+  "homepage": "https://github.com/re-xyr/remark-directive-mdx#readme",
+  "bugs": "https://github.com/re-xyr/remark-directive-mdx/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/re-xyr/remark-directive-mdx.git"
+  },
+  "files": [
+    "dist",
+    "src",
+    "CHANGELOG.md"
+  ],
+  "type": "module",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest",
+    "example": "node ./example/example.mjs",
+    "prepack": "vitest run && pnpm build"
+  },
+  "dependencies": {
+    "@types/mdast": "^4.0.4",
+    "html-tags": "^5.1.0",
+    "mdast-util-directive": "^3.1.0",
+    "mdast-util-mdx-jsx": "^3.2.0",
+    "tiny-case": "^1.0.3",
+    "unified": "^11.0.5",
+    "unist-builder": "^4.0.0",
+    "unist-util-visit": "^5.0.0"
+  },
+  "devDependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "prettier": "^3.7.4",
+    "remark-directive": "^4.0.0",
+    "to-vfile": "^8.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  },
+  "packageManager": "pnpm@10.24.0"
+}
