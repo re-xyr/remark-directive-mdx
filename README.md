@@ -113,9 +113,9 @@ We provide some configuration options. Markdown directives were initially design
 
 > Type: `unified.Plugin<[Option?], mdast.Root>`
 
-This is the default export and exposes a unified (remark) plugin. It optionally accepts one argument of type [`Option`](#interface-option), which we will describe below.
+This is the default export and exposes a unified (remark) plugin. It optionally accepts one argument of type [`Options`](#interface-options), which we will describe below.
 
-### interface `Option`
+### interface `Options`
 
 This is the means to configure this plugin. It has the following fields:
 
