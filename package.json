@@ -40,7 +40,6 @@
     "mdast-util-mdx-jsx": "^3.2.0",
     "tiny-case": "^1.0.3",
     "unified": "^11.0.5",
-    "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
@@ -49,6 +48,7 @@
     "remark-directive": "^4.0.0",
     "to-vfile": "^8.0.0",
     "typescript": "^5.9.3",
+    "unist-builder": "^4.0.0",
     "vitest": "^4.0.15"
   },
   "packageManager": "pnpm@10.24.0"

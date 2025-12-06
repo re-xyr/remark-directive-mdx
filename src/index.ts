@@ -1,8 +1,8 @@
 import type { Paragraph, Parent, PhrasingContent, Root } from 'mdast'
 import type { ContainerDirective, LeafDirective, TextDirective } from 'mdast-util-directive'
-import type { MdxJsxFlowElement, MdxJsxTextElement } from 'mdast-util-mdx-jsx'
+import { MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
 import type { Plugin } from 'unified'
-import { u } from 'unist-builder'
+import * as mdx from './builder.js'
 import { visit } from 'unist-util-visit'
 import htmlTagsArray from 'html-tags'
 import { camelCase, kebabCase, pascalCase, snakeCase } from 'tiny-case'
@@ -95,15 +95,7 @@ export interface Options {
  */
 export function astroHandleLabel(node: MdxJsxFlowElement, label: PhrasingContent[]): void {
   node.children.push(
-    u(
-      'mdxJsxFlowElement',
-      {
-        name: 'Fragment',
-        attributes: [u('mdxJsxAttribute', { name: 'slot', value: 'label' })],
-        data: { _mdxExplicitJsx: true },
-      },
-      label,
-    ) as MdxJsxFlowElement, // This breaks content model a bit but works in practice
+    mdx.flow('Fragment', [mdx.attr('slot', 'label')], label as MdxJsxFlowElement['children']),
   )
 }
 
@@ -189,18 +181,13 @@ const remarkDirectiveMdx: Plugin<[Options?], Root> = ({
       if (node.type === 'containerDirective') {
         const { name: rawTag, attributes, children } = node
         const tag = transformTag(rawTag)
-        const newNode: MdxJsxFlowElement = {
-          type: 'mdxJsxFlowElement',
-          name: tag,
-          attributes: [],
-          children: children.filter(child => !child.data || !('directiveLabel' in child.data)),
-          data: { _mdxExplicitJsx: true },
-        }
-        if (attributes) {
-          newNode.attributes = Object.entries(attributes).map(([attr, value]) =>
-            u('mdxJsxAttribute', { name: transformAttribute(tag, attr), value }),
-          )
-        }
+        const newNode = mdx.flow(
+          tag,
+          Object.entries(attributes ?? {}).map(([attr, value]) =>
+            mdx.attr(transformAttribute(tag, attr), value),
+          ),
+          children.filter(child => !child.data || !('directiveLabel' in child.data)),
+        )
         const label = children.find(
           (child): child is Paragraph => !!child.data && 'directiveLabel' in child.data,
         )
@@ -211,34 +198,24 @@ const remarkDirectiveMdx: Plugin<[Options?], Root> = ({
       } else if (node.type === 'leafDirective') {
         const { name: rawTag, attributes, children } = node
         const tag = transformTag(rawTag)
-        const newNode: MdxJsxFlowElement = {
-          type: 'mdxJsxFlowElement',
-          name: tag,
-          attributes: [],
-          children,
-          data: { _mdxExplicitJsx: true },
-        } as MdxJsxFlowElement
-        if (attributes) {
-          newNode.attributes = Object.entries(attributes).map(([attr, value]) =>
-            u('mdxJsxAttribute', { name: transformAttribute(tag, attr), value }),
-          )
-        }
+        const newNode = mdx.flow(
+          tag,
+          Object.entries(attributes ?? {}).map(([attr, value]) =>
+            mdx.attr(transformAttribute(tag, attr), value),
+          ),
+          children as MdxJsxFlowElement['children'],
+        )
         Object.assign(node as Parent, newNode)
       } else if (node.type === 'textDirective') {
         const { name: rawTag, attributes, children } = node
         const tag = transformTag(rawTag)
-        const newNode: MdxJsxTextElement = {
-          type: 'mdxJsxTextElement',
-          name: tag,
-          attributes: [],
+        const newNode = mdx.text(
+          tag,
+          Object.entries(attributes ?? {}).map(([attr, value]) =>
+            mdx.attr(transformAttribute(tag, attr), value),
+          ),
           children,
-          data: { _mdxExplicitJsx: true },
-        }
-        if (attributes) {
-          newNode.attributes = Object.entries(attributes).map(([attr, value]) =>
-            u('mdxJsxAttribute', { name: transformAttribute(tag, attr), value }),
-          )
-        }
+        )
         Object.assign(node as Parent, newNode)
       }
     })
