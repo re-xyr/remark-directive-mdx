@@ -3,7 +3,7 @@ import type { ContainerDirective, LeafDirective, TextDirective } from 'mdast-uti
 import { MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
 import type { Plugin } from 'unified'
 import * as mdx from './builder.js'
-import { visit } from 'unist-util-visit'
+import { SKIP, visit } from 'unist-util-visit'
 import htmlTagsArray from 'html-tags'
 import { camelCase, kebabCase, pascalCase, snakeCase } from 'tiny-case'
 
@@ -174,7 +174,7 @@ const remarkDirectiveMdx: Plugin<[Options?], Root> = ({
   transformAttribute = (_tag, attr) => attr,
 }: Options = {}) => {
   return tree =>
-    visit(tree, ['containerDirective', 'leafDirective', 'textDirective'], node => {
+    visit(tree, ['containerDirective', 'leafDirective', 'textDirective'], (node, index, parent) => {
       if (skipTransformed && node.data && 'hName' in node.data) return // Already transformed
       if (!filter(node as AnyDirective)) return
 
@@ -194,7 +194,7 @@ const remarkDirectiveMdx: Plugin<[Options?], Root> = ({
         if (label) {
           handleLabel(newNode, label.children)
         }
-        Object.assign(node as Parent, newNode)
+        parent!.children[index!] = newNode
       } else if (node.type === 'leafDirective') {
         const { name: rawTag, attributes, children } = node
         const tag = transformTag(rawTag)
@@ -205,7 +205,7 @@ const remarkDirectiveMdx: Plugin<[Options?], Root> = ({
           ),
           children as MdxJsxFlowElement['children'],
         )
-        Object.assign(node as Parent, newNode)
+        parent!.children[index!] = newNode
       } else if (node.type === 'textDirective') {
         const { name: rawTag, attributes, children } = node
         const tag = transformTag(rawTag)
@@ -216,8 +216,10 @@ const remarkDirectiveMdx: Plugin<[Options?], Root> = ({
           ),
           children,
         )
-        Object.assign(node as Parent, newNode)
+        parent!.children[index!] = newNode
       }
+
+      return [SKIP, index] // We always replace the node, so we need to skip the old node's children
     })
 }
 
